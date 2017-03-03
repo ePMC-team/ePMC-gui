@@ -1,0 +1,22 @@
+const int T; // time bound
+
+// maximum path length at time T
+R{"max_path_len_sq"}min=?[I=T] // minimum under all schedulers
+R{"max_path_len_sq"}max=?[I=T] // maximum under all schedulers
+R{"max_path_len_sq"}=?[I=T] // for DTMC model
+
+// to get the variance plots for the maximum path length (dtmc model)
+R{"max_path_len"}=?[I=T]+pow(R{"max_path_len_sq"}=?[I=T]-pow(R{"max_path_len"}=?[I=T],2), 0.5)
+R{"max_path_len"}=?[I=T]-pow(R{"max_path_len_sq"}=?[I=T]-pow(R{"max_path_len"}=?[I=T],2), 0.5)
+
+// states where network is connected
+label "done" = max_path_len<4;
+
+// minimum and maximum probability nodes become connected
+Pmin=? [ F<=T "done" ]
+Pmax=? [ F<=T "done" ]
+
+// minimum and maximum expected number of rounds until connected
+R{"rounds"}min=? [ F "done" ]
+R{"rounds"}max=? [ F "done" ]
+

@@ -1,0 +1,71 @@
+ctmc
+
+// incoming rate
+const double lambda = 5.0;
+
+const int num_stations = 3;
+const double unif_prob = 1 / (num_stations + 1.0);
+
+// service station rates
+const double mu_0 = 0.0;
+const double mu_1 = 1.0;
+const double mu_2 = 2.0;
+const double mu_3 = 3.0;
+const double sum_mu = mu_0 + mu_1 + mu_2 + mu_3;
+
+// routing matrix
+const double r_0_0 = mu_0 / sum_mu;
+const double r_0_1 = mu_1 / sum_mu;
+const double r_0_2 = mu_2 / sum_mu;
+const double r_0_3 = mu_3 / sum_mu;
+
+const double r_1_0 = unif_prob;
+const double r_1_1 = unif_prob;
+const double r_1_2 = unif_prob;
+const double r_1_3 = unif_prob;
+
+const double r_2_0 = unif_prob;
+const double r_2_1 = unif_prob;
+const double r_2_2 = unif_prob;
+const double r_2_3 = unif_prob;
+
+const double r_3_0 = unif_prob;
+const double r_3_1 = unif_prob;
+const double r_3_2 = unif_prob;
+const double r_3_3 = unif_prob;
+
+const double lambda_1 = lambda*r_0_1;
+const double lambda_2 = lambda*r_0_2;
+const double lambda_3 = lambda*r_0_3;
+
+const int limit = 20;
+
+global s_1: [0..limit] init 0;
+global s_2: [0..limit] init 0;
+global s_3: [0..limit] init 0;
+
+// distribute incoming tokens to queues
+module incoming
+  [] s_1<limit -> lambda_1 : (s_1'=s_1+1);
+  [] s_2<limit -> lambda_2 : (s_2'=s_2+1);
+  [] s_3<limit -> lambda_3 : (s_3'=s_3+1);
+endmodule
+
+module queue_1
+  [] s_1>0                 -> mu_1*r_1_0 : (s_1'=s_1-1);
+  [] (s_1>0) & (s_2<limit) -> mu_1*r_1_2 : (s_1'=s_1-1) & (s_2'=s_2+1);
+  [] (s_1>0) & (s_3<limit) -> mu_1*r_1_3 : (s_1'=s_1-1) & (s_3'=s_3+1);
+endmodule
+
+module queue_2
+  [] s_2>0                 -> mu_2*r_2_0 : (s_2'=s_2-1);
+  [] (s_2>0) & (s_1<limit) -> mu_2*r_2_1 : (s_2'=s_2-1) & (s_1'=s_1+1);
+  [] (s_2>0) & (s_3<limit) -> mu_2*r_2_3 : (s_2'=s_2-1) & (s_3'=s_3+1);
+endmodule
+
+module queue_3
+  [] s_3>0                 -> mu_3*r_3_0 : (s_3'=s_3-1);
+  [] (s_3>0) & (s_1<limit) -> mu_3*r_3_1 : (s_3'=s_3-1) & (s_1'=s_1+1);
+  [] (s_3>0) & (s_2<limit) -> mu_3*r_3_2 : (s_3'=s_3-1) & (s_2'=s_2+1);
+endmodule
+

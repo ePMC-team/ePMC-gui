@@ -1,0 +1,13 @@
+P=? [ (s_2!=limit & s_3!=limit) U (s_1=limit) ]
+
+P=? [ (s_1!=limit & s_3!=limit) U (s_2=limit) ]
+
+P=? [ (s_1!=limit & s_2!=limit) U (s_3=limit) ]
+
+P=? [ G (((s_2!=limit) & (s_3!=limit)) U (s_1=limit)) ]
+
+P=? [ (G(F (s_2<6))) ]
+
+P=? [ (G(F (s_2>=6))) ]
+
+P=? [(!(s_1>=4) U (s_2>=6))]

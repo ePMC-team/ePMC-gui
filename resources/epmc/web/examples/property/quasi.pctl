@@ -1,0 +1,8 @@
+// subset
+P=? [p3=n U (p3=n-1 U (p3=n-2 U (p3=n-3 U (p3=n-4 U (p3=n-5 U (p3=n-6 U (p3=n-7 U (p3=n-8 U (p3=n-9 U (p3!=n)))))))))) ]
+
+// breakpoint
+P=? [ (G(F(p2=n))) | (F(G(p3=n))) | (F(G(p3=n-1))) | (F(G(p3=n-2))) | (F(G(p3=n-3))) | (F(G(p3=n-4))) ]
+
+// Rabin
+P=? [ (G(F(p3=n))) | (F(G(p3=n))) | (F(G(p3=n-1))) | (F(G(p3=n-2))) | (F(G(p3=n-3))) ]

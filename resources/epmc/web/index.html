@@ -1,0 +1,386 @@
+<html>
+	<head>
+		<!-- Bootstrap -->
+		<link href="css/bootstrap.min.css" rel="stylesheet">
+		<link rel="stylesheet" type="text/css" href="./css/ripples.min.css" />
+		
+		<script src="js/jquery-1.10.2.min.js"></script>
+		
+		<style>
+			body {
+				background: #fefefe;
+				font-family: Times;
+			}
+			
+			a {
+				cursor: hand;
+			}
+			
+			#model_editor {
+				width: 100%;
+				height: 100%;
+			}
+			
+			#left {
+				padding: 0px;
+			}
+			
+			#right {
+				font-size: 100%;
+			}
+			
+			#right table {
+				font-size: 100%;
+			}
+			
+			#right input, #right textarea {
+				font-size: 100%;
+				font-weight: bold;
+				margin-bottom: 5px;
+			}
+			
+			#right textarea {
+				min-height: 60px;
+			}
+			
+			#property-list :list-group-item {
+				font-weight: bold;
+			}
+			
+			#shortcuts .btn{
+				margin-right: 10px;
+				margin-top: 10px;
+			}
+			
+			#option-editor table {
+				font-size: 100%;
+			}
+			
+			.propcbox {
+				width: 20px;
+				height: 20px;
+			}
+			
+			.tab-pane {
+				padding: 5px;
+				height: 400px;
+				overflow-y: scroll;
+			}
+			
+			#history-list {
+				padding: 5px;
+				height: 440px;
+				overflow-y: scroll;
+			}
+		</style>
+	</head>
+	<body>
+		<div id='nav' class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="javascript:void(0)"><b>ePMC</b></a>
+                </div>
+                <div class="navbar-collapse collapse navbar-responsive-collapse">
+                    <ul class="nav navbar-nav">
+                    	<li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Models<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a onclick="util.new_model();">New Model</a></li>
+                                <li><a onclick="util.load_model('');">Load Model</a></li>
+                                <li><a onclick="util.save_model(false);">Save</a></li>
+                                <li><a onclick="util.save_model(true);">Save As</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Properties<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a onclick="util.load_prop('');">Load Properties</a></li>
+                                <li><a onclick="util.save_prop(false);">Save Properties</a></li>
+                                <li><a onclick="util.save_prop(true);">Save Properties As</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Edit<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a onclick="model_editor.undo();">Undo <span class="badge">Ctrl + Z</span></a></li>
+                                <li><a onclick="model_editor.redo();">Redo <span class="badge">Ctrl + Y</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Analyze<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <!-- 
+                                <li><a onclick="util.syntax_check();">Syntax Validation</a></li>
+                                <li class='dropdown-header'>Model Checking</li>
+                                <li><a onclick="util.verify(true);">Verify Selected Properties</a></li>
+                                 -->
+                                <li><a onclick="util.verify(false);">Verify All Properties</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Examples<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                            	<li class='dropdown-header'>A simple probabilistic algorithm due to Knuth and Yao, for emulating a 6-sided die with a fair coin.</li>
+                                <li><a onclick="util.example('die.pm', 'die.pctl');">Die</a></li>
+                                <li class="divider"></li>
+                                
+                            	<li class='dropdown-header'>This example applies PRISM to the specification and analysis of a Markov decision process (MDP) model.</li>
+                                <li><a onclick="util.example('dining_crypt3.nm', 'dining_crypt_correctness.pctl');">Dining philosophers</a></li>
+                                <li class="divider"></li>
+                                
+                                <li class='dropdown-header'>An example illustrating the use of subset, breakpoint and Rabin constructions.</li>
+                                <li><a onclick="util.example('quasi.nm', 'quasi.pctl');">Quasi Birth Death</a></li>
+                                <li class="divider"></li>
+                                
+                                <li class='dropdown-header'>
+                                	Jackson Queuing Network
+                                </li>
+                                <li><a onclick="util.example('jackson.nm', 'jackson.pctl');">Jackson Queuing Network</a>
+                            </ul>
+                        </li>               
+                    </ul>
+                    <form class="navbar-form navbar-left">
+                        <div class="form-group">
+                            <input type="text" id='terminal' class="form-control col-sm-8" placeholder="js command here">
+                        </div>
+                    </form>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Option<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                            	<li class="dropdown-header">Current Option <span id='lbl-option-status' class="label label-default">Default</span></li>
+                                <li><a onclick="util.option_show_default();">Show Default Options</a></li>
+                                <li><a onclick="util.option_show(false);">Show Current Options</a></li>
+                                <li><a onclick="util.option_edit();">Change Current Options</a></li>
+                                <li class='divider'></li>
+                                <li><a onclick="util.option_save();">Save Options to File</a></li>
+                                <li><a onclick="util.option_load();">Load Options From File</a></li>
+                                <li><a onclick="util.option_reset();">Reset to Default</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li><a onclick="util.history_show();">History</a></li>
+                        <li><a onclick="util.saveall();">Save All</a></li>
+                        <!-- <li><a onclick="util.debug();">Debug</a></li>  -->
+                        <li><a onclick="util.exit();">Exit</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+		<div class='container-fluid' style='margin-top: 60px;'>
+			<div class='row-fluid'>
+				<div id='left' class='col-xs-8 panel panel-default'>
+					<div class="panel-heading">
+						<span id='model_save_lbl' class="label label-warning">Model Unsaved</span>&nbsp;
+						<span id='prop_save_lbl' class="label label-warning">Properties Unsaved</span>&nbsp;
+						<span id='model_title'>untitled model</span>
+					</div>
+				    <div id='model_editor' class="panel-body"></div>
+				</div>
+				<div id='right' class='col-xs-4' style='overflow-y: scroll;'>
+					<div id='properties-panel' class='panel panel-info'>
+						<div class="panel-heading">
+					        <h3 class="panel-title">Properties' List</h3>
+					    </div>
+						<ul class="list-group" id='properties-list'>
+							<li class="list-group-item tips">Nothing to present now, click <a onclick="util.load_prop('');">HERE</a> to open a property file.</li>
+							<li id='properties-add-new' class="list-group-item"><a onclick='util.append_prop();'>
+								<span class="glyphicon glyphicon-plus"></span>
+								<b>Add Property</b>
+							</a></li>
+							<!--  
+							<li id='properties-add-from-template' class="list-group-item"><a onclick='util.append_prop();'>
+								<span class="glyphicon glyphicon-plus"></span>
+								<b>Add Property From A Template</b>
+							</a></li>
+							-->
+						</ul>
+					</div>
+					<div id='properties-constant-panel' class='panel panel-success'>
+						<div class="panel-heading">
+							<h3 class='panel-title'>Constants</h3>
+						</div>
+						<div class="panel-body" style='padding-top: 5px;'>
+					        <table id='constant-list' width="100%" class="table table-hover table-stripped table-condensed">
+					        	<thead>
+					        		<th>Name</th>
+					        		<th>Type</th>
+					        		<th>Value</th>
+					        	</thead>
+					        	<tbody>
+					        		<tr id='constant-add-new'>
+					        			<td>
+					        				<a onclick='util.add_constant();'>
+						        				<span class="glyphicon glyphicon-plus">
+						        				</span>
+					        					<b>Add Constant</b>
+					        				</a>
+					        			</td><td></td>
+					        		</tr>
+					        	</tbody>
+					        </table>
+					    </div>
+					</div>
+					<div id='properties-label-panel' class='panel panel-warning'>
+						<div class="panel-heading">
+							<h3 class='panel-title'>Labels</h3>
+						</div>
+						<div class="panel-body" style='padding-top: 5px; padding-bottom: 5px;'>
+					        <table id='label-list' width="100%" class="table table-hover table-stripped table-condensed">
+					        	<thead>
+					        		<th>Name</th>
+					        		<th>Value</th>
+					        	</thead>
+					        	<tbody>
+					        		<tr id='label-add-new'>
+					        			<td>
+					        				<a onclick='util.add_label();'>
+						        				<span class="glyphicon glyphicon-plus">
+						        				</span>
+					        					<b>Add label</b>
+					        				</a>
+					        			</td><td></td>
+					        		</tr>
+					        	</tbody>
+					        </table>
+					    </div>
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		                <h4 class="modal-title" id="myModalLabel">Confirm</h4>
+		            </div>
+		            <div class="modal-body"></div>
+		            <div class="modal-footer">
+		                <button id='confirm-cancel' type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		                <button id='confirm-confirmed' type="button" class="btn btn-primary">Confirm</button>
+		            </div>
+		        </div><!-- /.modal-content -->
+		    </div><!-- /.modal -->
+		</div>
+		
+		<div class="modal fade" id="prop-editor" tabindex="-1" role="dialog" aria-labelledby="lbl-prop-editor" aria-hidden="true">
+		    <div class="modal-dialog">
+		        <div class="modal-content">
+		            <div class="modal-header">
+		                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		                <h4 class="modal-title" id="lbl-prop-editor">Property Editor</h4>
+		            </div>
+		            <div class="modal-body">
+			            <form class="form-horizontal" role="form">
+						  <div class="form-group">
+						    <label for="firstname" class="col-sm-2 control-label">Formula</label>
+						    <div id='shortcuts' class="col-sm-10">
+						      <textarea class="form-control" name="prop-editor-formula" placeholder="put formula here"></textarea>
+						      <!-- 
+						      <button type='button' class='btn btn-info'>Next</button>
+						      <button type='button' class='btn btn-info'>Until</button>
+						       -->
+						    </div>
+						  </div>
+						  <div class="form-group">
+						    <label for="lastname" class="col-sm-2 control-label">Comments</label>
+						    <div class="col-sm-10">
+						      <textarea class="form-control" style='min-height:100px;' name="prop-editor-comments" placeholder="write some simple explanation"></textarea>
+						    </div>
+						  </div>
+						</form>
+		            </div>
+		            <div class="modal-footer">
+		                <button id='prop-editor-cancel' type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		                <button id='prop-editor-remove' type="button" class="btn btn-danger">Delete This Property</button>
+		                <button id='prop-editor-confirmed' type="button" class="btn btn-primary">Confirm</button>
+		            </div>
+		        </div><!-- /.modal-content -->
+		    </div><!-- /.modal -->
+		</div>
+		
+		<div class="modal fade" id="option-editor" tabindex="-1" role="dialog" aria-labelledby="lbl-option-editor" aria-hidden="true">
+		    <div class="modal-dialog" style='width: 800px;'>
+		        <div class="modal-content">
+		            
+		            <div class="modal-body" style='max-height: 500px; overflow-y: scroll;'>
+			            <form class="form-horizontal" role="form">
+							<table class='table table-hover table-striped'>
+								<thead>
+									<td>Option Name</td>
+									<td>Option Type</td>
+									<td>Default</td>
+									<td>Comments</td>
+									<td>Value</td>
+								</thead>
+								<tbody>
+								</tbody>
+							</table>
+						</form>
+		            </div>
+		            <div class="modal-footer">
+		                <button id='option-editor-cancel' type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+		                <button id='option-editor-confirmed' type="button" class="btn btn-primary">Confirm</button>
+		            </div>
+		        </div><!-- /.modal-content -->
+		    </div><!-- /.modal -->
+		</div>
+		
+		<div class="modal fade" id="history-review" tabindex="-1" role="dialog" aria-labelledby="lbl-history-review" aria-hidden="true">
+		    <div id='dialog-history-review' class="modal-dialog" style='width: 960px;'>
+		        <div class="modal-content">
+		            <div class="modal-header">
+		                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+		                <h4 class="modal-title" id="lbl-history-review">History</h4>
+		            </div>
+		            <div class="modal-body container-fluid">
+			            <div class='row-fluid'>
+			            	<div class='col-xs-3'>
+			            		<ul id='history-list' class="list-group">
+								</ul>
+			            	</div>
+			            	<div id='history-current' class='col-xs-9'>
+			            		<ul id='history-tab-menu' class="nav nav-tabs">
+									<li class='active'><a href="#history-tab-result" data-toggle="tab">Result</a></li>
+									<li><a href="#history-tab-model" data-toggle="tab">Model Snapshot</a></li>
+									<li><a href="#history-tab-property" data-toggle="tab">Property Snapshot</a></li>
+									<li><a href="#history-tab-option" data-toggle="tab">Option Snapshot</a></li>
+								</ul>
+								
+								<div class="tab-content">
+								    <div class="tab-pane fade in active" id="history-tab-result">
+								    	<h2>Results</h2>
+								    	<pre id='history-elem-result'></pre>
+								    	<h2>Logs</h2>
+								    	<pre id='history-elem-log'></pre>								        
+								    </div>
+								    <div class="tab-pane fade" id="history-tab-model">								        
+								    </div>
+								    <div class="tab-pane fade" id="history-tab-property">								        
+								    </div>
+								    <div class="tab-pane fade" id="history-tab-option">
+								    </div>
+								</div>
+			            	</div>
+			            </div>
+		            </div>
+		            <div class="modal-footer">
+		                <button id='prop-editor-cancel' type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		            </div>
+		        </div><!-- /.modal-content -->
+		    </div><!-- /.modal -->
+		</div>
+	</body>
+	
+	<script src="js/bootstrap.min.js"></script>
+	<script src="js/ripples.min.js"></script>
+	<script src="plugins/ace/ace.js"></script>
+	<script src="js/engines/native.js"></script>
+	<script src="js/engines/epmc.js"></script>
+	<script src="js/engines/prop.js"></script>
+	<script src="js/engines/options.js"></script>
+	<script src="js/engines/history.js"></script>
+</html>
