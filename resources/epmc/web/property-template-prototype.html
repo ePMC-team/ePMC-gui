@@ -1,0 +1,263 @@
+<html>
+    <head>
+        <!-- Bootstrap -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <!--<link rel="stylesheet" type="text/css" href="./css/ripples.min.css" />-->
+
+        <script src="js/jquery-1.10.2.min.js"></script>
+        
+        <style>
+            body {
+                background: #fefefe;
+                /*font-family: Times;*/
+            }
+            
+            a {
+                cursor: hand;
+            }
+            
+/*            #model_editor {
+                width: 100%;
+                height: 100%;
+            }
+            
+            #left {
+                padding: 0px;
+            }
+            
+            #right {
+                font-size: 100%;
+            }
+            
+            #right table {
+                font-size: 100%;
+            }
+            
+            #right input, #right textarea {
+                font-size: 100%;
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            
+            #right textarea {
+                min-height: 60px;
+            }
+            
+            #property-list :list-group-item {
+                font-weight: bold;
+            }
+            
+            #shortcuts .btn{
+                margin-right: 10px;
+                margin-top: 10px;
+            }
+            
+            #option-editor table {
+                font-size: 100%;
+            }
+            
+            .propcbox {
+                width: 20px;
+                height: 20px;
+            }
+            
+            .tab-pane {
+                padding: 5px;
+                height: 400px;
+                overflow-y: scroll;
+            }
+            
+            #history-list {
+                padding: 5px;
+                height: 440px;
+                overflow-y: scroll;
+            }*/
+        </style>
+    </head>
+    <body>
+        <div id='nav' class="navbar navbar-default navbar-fixed-top">
+            <div class="container-fluid">
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="javascript:void(0)"><b>ePMC</b></a>
+                </div>
+                <div class="navbar-collapse collapse navbar-responsive-collapse">
+                    <ul class="nav navbar-nav">
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Models<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a onclick="util.new_model();">New Model</a></li>
+                                <li><a onclick="util.load_model('');">Load Model</a></li>
+                                <li><a onclick="util.save_model(false);">Save</a></li>
+                                <li><a onclick="util.save_model(true);">Save As</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Properties<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a onclick="util.load_prop('');">Load Properties</a></li>
+                                <li><a onclick="util.save_prop(false);">Save Properties</a></li>
+                                <li><a onclick="util.save_prop(true);">Save Properties As</a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Edit<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li><a onclick="model_editor.undo();">Undo <span class="badge">Ctrl + Z</span></a></li>
+                                <li><a onclick="model_editor.redo();">Redo <span class="badge">Ctrl + Y</span></a></li>
+                            </ul>
+                        </li>
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Analyze<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <!-- 
+                                <li><a onclick="util.syntax_check();">Syntax Validation</a></li>
+                                <li class='dropdown-header'>Model Checking</li>
+                                <li><a onclick="util.verify(true);">Verify Selected Properties</a></li>
+                                 -->
+                                <li><a onclick="util.verify(false);">Verify All Properties</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Examples<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li class='dropdown-header'>A simple probabilistic algorithm due to Knuth and Yao, for emulating a 6-sided die with a fair coin.</li>
+                                <li><a onclick="util.example('die.pm', 'die.pctl');">Die</a></li>
+                                <li class="divider"></li>
+                                
+                                <li class='dropdown-header'>This example applies PRISM to the specification and analysis of a Markov decision process (MDP) model.</li>
+                                <li><a onclick="util.example('dining_crypt3.nm', 'dining_crypt_correctness.pctl');">Dining philosophers</a></li>
+                                <li class="divider"></li>
+                                
+                                <li class='dropdown-header'>An example illustrating the use of subset, breakpoint and Rabin constructions.</li>
+                                <li><a onclick="util.example('quasi.nm', 'quasi.pctl');">Quasi Birth Death</a></li>
+                                <li class="divider"></li>
+                                
+                                <li class='dropdown-header'>
+                                    Jackson Queuing Network
+                                </li>
+                                <li><a onclick="util.example('jackson.nm', 'jackson.pctl');">Jackson Queuing Network</a>
+                            </ul>
+                        </li>               
+                    </ul>
+                    <form class="navbar-form navbar-left">
+                        <div class="form-group">
+                            <input type="text" id='terminal' class="form-control col-sm-8" placeholder="js command here">
+                        </div>
+                    </form>
+                    <ul class="nav navbar-nav navbar-right">
+                        <li class="dropdown">
+                            <a href="#" data-target="#" class="dropdown-toggle" data-toggle="dropdown">Option<b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                                <li class="dropdown-header">Current Option <span id='lbl-option-status' class="label label-default">Default</span></li>
+                                <li><a onclick="util.option_show_default();">Show Default Options</a></li>
+                                <li><a onclick="util.option_show(false);">Show Current Options</a></li>
+                                <li><a onclick="util.option_edit();">Change Current Options</a></li>
+                                <li class='divider'></li>
+                                <li><a onclick="util.option_save();">Save Options to File</a></li>
+                                <li><a onclick="util.option_load();">Load Options From File</a></li>
+                                <li><a onclick="util.option_reset();">Reset to Default</a></li>
+                            </ul>
+                        </li>
+                        
+                        <li><a onclick="util.history_show();">History</a></li>
+                        <li><a onclick="util.saveall();">Save All</a></li>
+                        <!-- <li><a onclick="util.debug();">Debug</a></li>  -->
+                        <li><a onclick="util.exit();">Exit</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class='container-fluid' style='margin-top: 60px;'>
+            <div class="row clearfix">
+                
+                <div class="col-md-3 column">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Packages</div>
+                        <ul class="list-group">
+                            <a class="list-group-item">Liveness Properties</a>
+                            <a class="list-group-item active">Safety Properties</a>
+                            <a class="list-group-item">Fairness Properties</a>
+                            <a class="list-group-item">Reachability</a>
+                            <a class="list-group-item">PCTL Qualitative Properties</a>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="col-md-3 column">
+
+                    <div class="panel panel-default">
+                        <div class="panel-heading">Formulas</div>
+                        <ul class="list-group">
+                            <a class="list-group-item">Uncoditional Fairness</a>
+                            <a class="list-group-item">Strong Fairness</a>
+                            <a class="list-group-item active ">Weak Fairness</a>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 column">
+
+                    <div class="panel panel-info">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                            Formula description
+                            </h3>
+                        </div>
+                        <div class="panel-body">
+                            <p>The formula `...` in package `...` is used to describe ...</p>
+                            <p>-...</p>
+                            <p>-...</p>
+                            <p>-...</p>
+                        </div>
+                    </div>
+                    <div id='properties-constant-panel' class='panel panel-info'>
+                        <div class="panel-heading">
+                            <h3 class='panel-title'>Parameters</h3>
+                        </div>
+                        <div class="panel-body" style='padding-top: 5px;'>
+                            <table id='constant-list' width="100%" class="table table-hover table-stripped table-condensed">
+                                <thead>
+                                    <th>Name</th>
+                                    <th>Type</th>
+                                    <th>Value</th>
+                                </thead>
+                                <tbody>
+                                    <tr id='constant-add-new'>
+                                        <td>
+                                            <a onclick='util.add_constant();'>
+                                                <span class="glyphicon glyphicon-plus">
+                                                </span>
+                                                <b>Add Constant</b>
+                                            </a>
+                                        </td><td></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="btn-group btn-group-justified" role="group" aria-label="...">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default">Create</button>
+                        </div>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default">Cancel</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </body>
+    
+    <script src="js/bootstrap.min.js"></script>
+    <!--<script src="js/ripples.min.js"></script>-->
+    <script src="plugins/ace/ace.js"></script>
+    <script src="js/engines/native.js"></script>
+    <script src="js/engines/epmc.js"></script>
+    <script src="js/engines/prop.js"></script>
+    <script src="js/engines/options.js"></script>
+    <script src="js/engines/history.js"></script>
+</html>
