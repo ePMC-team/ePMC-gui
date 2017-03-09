@@ -1,5 +1,8 @@
 package epmc.gui;
 
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 import epmc.gui.jsapi.EpmcApi;
 import epmc.gui.jsapi.Logger;
 import epmc.gui.jsapi.FileApi;
@@ -28,6 +31,11 @@ public class Main extends Application {
 			// create an instance of web browser
 			final WebView browser = new WebView();
 			final WebEngine engine = browser.getEngine();
+			
+			// obtain dpi information from the window
+			Dimension screensize = Toolkit.getDefaultToolkit().getScreenSize();
+			int dpi = Toolkit.getDefaultToolkit().getScreenResolution();
+			System.out.println(dpi);
 			
 			// load the window
 			String docpath = "";
