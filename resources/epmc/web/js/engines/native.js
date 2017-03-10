@@ -232,3 +232,18 @@ function init() {
 	// disable all button styles
 	$('.btn').removeClass().addClass('btn btn-default');
 }
+
+window.util.current_div = "main-interface";
+
+window.util.navi_to = function(target) {
+    console.log(util.current_div);
+    if (target === "property-template") {
+        util.refresh_property_templates();
+    }
+    if (!(util.current_div === target)) {
+        console.log(target);
+        $("#" + util.current_div).slideToggle();
+        $("#" + target).slideToggle();
+        util.current_div = target;
+    }
+}
