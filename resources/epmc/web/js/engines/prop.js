@@ -82,7 +82,7 @@ window.util.reload_prop = function () {
 			});
 			cl[2] = cl[2].replace(';', '');
 			
-			var cline = window.util.create_constant_line(cl[2], cl[1]);
+			var cline = window.util.create_constant_line(cl[2], cl[1],possibletypes);
 			$('#constant-add-new').before(cline);
 		} else if (cl.indexOf("label") == 0) {
 			var reg = /label\s+"(\w+)"\s*=\s*(\S+);/;
@@ -196,6 +196,11 @@ window.util.save_prop = function (saveas) {
 	}
 }
 
+window.util.add_property = function (property) {
+    vars.model.list_prop.push(property);
+    $('#properties-add-new').before("<li class='list-group-item'><input style='display:none;' type='checkbox' /><a onclick='window.util.edit_prop(this)'>" + property.formula + "</a></li>");
+}
+
 window.util.get_consts = function () {
 	var clines = $('#constant-list tbody tr');
 	var result = {};
@@ -238,13 +243,13 @@ window.util.get_labels = function () {
 	return result;
 }
 
-window.util.create_constant_line = function (name, type) {
+window.util.create_constant_line = function (name, type, types) {
 	var cline = '<tr>';
 	cline += "<td><input type='text' value='" + name + "' /></td>";
 	cline += "<td><select>";
 	
-	for (var j = 0; j < possibletypes.length; j ++) {
-		var t = possibletypes[j];
+	for (var j = 0; j < types.length; j ++) {
+		var t = types[j];
 		cline += "<option " + (t == type ? "selected" : "") + " value='" + t + "'>" + t + "</option>";
 	}
 	cline += "</td>";
@@ -261,7 +266,7 @@ window.util.create_constant_line = function (name, type) {
 }
 
 window.util.add_constant = function () {
-	$('#constant-add-new').before(window.util.create_constant_line('', ''));
+	$('#constant-add-new').before(window.util.create_constant_line('', '',possibletypes));
 }
 
 window.util.create_label_line = function (name, value) {
@@ -279,183 +284,3 @@ window.util.add_label = function () {
 $('#constant-list, #label-list').on('change', 'input,select', function() {
 	window.util.setstatus_prop('Properties Unsaved');
 });
-
-//
-// var Parameter = schema({
-//     "name"      :   String,
-//     "type"      :   ["int","bool","real","var"],
-//     "abstract"  :   String
-// });
-//
-// var Formula = schema({
-//     "name"        :   String,
-//     "description" :   String,   // MarkDown and LaTex Support
-//     "abstract"    :   String,   // a short version, used as subtitle of formulae
-//     "expression"  :   String,
-//     "parameters"  :   Array.of(Parameter)
-// });
-//
-// var Package = schema({
-//     "name"      :   String,
-//     "formulas"  :   Array.of(Formula)
-// });
-//
-// var PackList = schema(Array.of(Package))
-
-var pack_list = [{
-    name      : "Liveness Property",
-    formulas  : [{
-        name          :    "simple liveness",
-        description   :    "a simple liveness property",
-        abstract      :    "something good will happend",
-        expression    :    "F {t1}={t2}",
-        parameters    : [{
-            name     :    "t1",
-            type     :    "var",
-            abstract :    "an varible in model"
-        },{
-            name     :    "t2",
-            type     :    "int",
-            abstract :    "an constant integer"
-        }]
-    }]
-},{
-    name      : "Fairness Property",
-    formulas  : [{
-        name          :    "Uncoditional Fairness",
-        description   :    "a simple Fairness property",
-        abstract      :    "{t1}={t2} happen infinitely many times",
-        expression    :    "GF {t1}={t2}",
-        parameters    : [{
-            name     :    "t1",
-            type     :    "var",
-            abstract :    "an varible in model"
-        },{
-            name     :    "t2",
-            type     :    "int",
-            abstract :    "an constant integer"
-        }]
-    },{
-        name          :    "Strong Fairness",
-        description   :    "a not so simple Fairness property",
-        abstract      :    "if {t1}={t2} infinitely often then {t3}={t4} also will",
-        expression    :    "GF {t1}={t2} -> GF {t3}={t4}",
-        parameters    : [{
-            name     :    "t1",
-            type     :    "var",
-            abstract :    "an varible in model"
-        },{
-            name     :    "t2",
-            type     :    "int",
-            abstract :    "an constant integer"
-        },{
-            name     :    "t3",
-            type     :    "var",
-            abstract :    "an varible in model"
-        },{
-            name     :    "t4",
-            type     :    "int",
-            abstract :    "an constant integer"
-        }]
-    },{
-        name          :    "Weak Fairness",
-        description   :    "a not so simple Fairness property",
-        abstract      :    "if {t1}={t2} finally forever then {t3}={t4} also will",
-        expression    :    "FG {t1}={t2} -> GF {t3}={t4}",
-        parameters    : [{
-            name     :    "t1",
-            type     :    "var",
-            abstract :    "an varible in model"
-        },{
-            name     :    "t2",
-            type     :    "int",
-            abstract :    "an constant integer"
-        },{
-            name     :    "t3",
-            type     :    "var",
-            abstract :    "an varible in model"
-        },{
-            name     :    "t4",
-            type     :    "int",
-            abstract :    "an constant integer"
-        }]
-    }] //formulas
-},{
-    name      : "Safety Property",
-    formulas  : [{
-        name          :    "Invariant",
-        description   :    "a simple safety property",
-        abstract      :    "{t1}={t2} holds in every state",
-        expression    :    "G {t1}={t2}",
-        parameters    : [{
-            name     :    "t1",
-            type     :    "var",
-            abstract :    "an varible in model"
-        },{
-            name     :    "t2",
-            type     :    "int",
-            abstract :    "an constant integer"
-        }]
-    }]
-}];
-window.util.pack_idx = 0;
-window.util.formula_idx = 0;
-window.util.refresh_property_templates = function() {
-	// var templates = // window.epmc.getTemplates
-     //    [
-     //        {
-     //            "liveness properties":
-     //                [
-     //                    {
-     //                        "unconditional fairness": {
-     //                            "description": "...$t=a^2$...**x**, *b*...",
-     //                            "abstract": "...",
-     //                "formula": "..{t1}..{t2}..",
-     //                "parameters": {
-     //                    "t1": {
-     //                        "type": "...",
-     //                        "abstract": "..."
-     //                    }
-     //                }}
-     //            ]
-     //        }}
-    //
-     //        "safety properties": {
-     //        }
-	// 	};
-	var lstPackage = $("#lstPackage");
-	lstPackage.empty();
-	pack_list.forEach(function(value,index){
-        var item = $("<a class='list-group-item'></a>").text(value["name"]);
-        item.click(function(){
-            util.pack_idx = index;
-            util.refresh_property_templates();
-        });
-        if(index === util.pack_idx) {
-            item.addClass("active");
-        }
-        lstPackage.append(item);
-    });
-
-    var lstFormula =$("#lstFormula");
-    lstFormula.empty();
-	var formulas = pack_list[util.pack_idx]["formulas"];
-    formulas.forEach(function(value,index){
-        var item = $("<a class='list-group-item'></a>").text(value["name"]);
-        if(index === util.formula_idx) {
-            item.addClass("active");
-        }
-        item.click(function(){
-            util.formula_idx = index;
-            util.refresh_property_templates();
-        });
-        lstFormula.append(item);
-    });
-
-    var formula = formulas[util.formula_idx];
-    var divFormulaDesc = $("#divFormulaDesc");
-    divFormulaDesc.empty();
-    ["description","abstract","expression"].forEach(function(key){
-        divFormulaDesc.append($("<p></p>").text(formula[key]));
-    });
-}
