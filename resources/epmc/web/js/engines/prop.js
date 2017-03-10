@@ -43,13 +43,14 @@ window.util.reload_prop = function () {
 		// put elem into the list
 		if (elem == null) return;
 		if (elem.formula == "") return;
-		
-		$('#properties-add-new').before(
-			"<li class='list-group-item'>" + 
-			"<input style='display:none;' class='propcbox' type='checkbox' />" + 
-			"<a onclick='window.util.edit_prop(this)'>" + elem.formula + "</a></li>"
-		);
-		window.vars.model.list_prop.push(elem);
+
+		util.add_property(elem);
+		// $('#properties-add-new').before(
+		// 	"<li class='list-group-item'>" +
+		// 	"<input style='display:none;' class='propcbox' type='checkbox' />" +
+		// 	"<a onclick='window.util.edit_prop(this)'>" + elem.formula + "</a></li>"
+		// );
+		// window.vars.model.list_prop.push(elem);
 		elem = null;
 	}
 	
@@ -81,9 +82,16 @@ window.util.reload_prop = function () {
 				return elem.trim() != "";
 			});
 			cl[2] = cl[2].replace(';', '');
-			
-			var cline = window.util.create_constant_line(cl[2], cl[1],possibletypes);
-			$('#constant-add-new').before(cline);
+			// util.add_constant()
+            var cons = {
+                name : cl[2],
+                type : cl[1],
+                value : ""
+            };
+            // log.info(cons);
+            util.add_constant(cons);
+			// var cline = window.util.create_constant_line(cl[2], cl[1],possibletypes);
+			// $('#constant-add-new').before(cline);
 		} else if (cl.indexOf("label") == 0) {
 			var reg = /label\s+"(\w+)"\s*=\s*(\S+);/;
 			var lbl = reg.exec(cl);
@@ -114,9 +122,9 @@ window.util.append_prop = function () {
 		};
 		
 		if (elem.formula != undefined && elem.formula.trim() != "") {
-			vars.model.list_prop.push(elem);
-			$('#properties-add-new').before("<li class='list-group-item'><input style='display:none;' type='checkbox' /><a onclick='window.util.edit_prop(this)'>" + elem.formula + "</a></li>");
-			$('#properties-panel li.tips').remove();
+		    util.add_property(elem);
+			// vars.model.list_prop.push(elem);
+			// $('#properties-add-new').before("<li class='list-group-item'><input style='display:none;' type='checkbox' /><a onclick='window.util.edit_prop(this)'>" + elem.formula + "</a></li>");
 			window.util.setstatus_prop('Properties Unsaved');
 		}
 		$('#prop-edit-remove').removeClass('btn-disabled').addClass('btn-danger');
@@ -196,16 +204,17 @@ window.util.save_prop = function (saveas) {
 	}
 }
 
+var tipsOn = true;
 window.util.add_property = function (property) {
+    if(tipsOn){
+        $('#properties-panel li.tips').remove();
+    }
     vars.model.list_prop.push(property);
-    $('#properties-add-new').before("<li class='list-group-item'><input style='display:none;' type='checkbox' /><a onclick='window.util.edit_prop(this)'>" + property.formula + "</a></li>");
+    // naive new_property_row
+    $('#properties-list').append("<li class='list-group-item'><input style='display:none;' type='checkbox' /><a onclick='window.util.edit_prop(this)'>" + property.formula + "</a></li>");
 }
 
 //TODO 重构几个接口
-// add_property(prop) 回插property 用
-// add_constant(cons) 回插constant 用
-// new_property_row (formula,comments)
-// new_ constant_row(name,type,value) 新建 const 行和新建 param 行可以用
 // property 从无序列表改成有序列表，序号用来给parameter 重命名
 
 window.util.get_consts = function () {
@@ -249,8 +258,8 @@ window.util.get_labels = function () {
 	
 	return result;
 }
-
-window.util.create_constant_line = function (name, type, types) {
+//// new_ constant_row(name,type,value,types) 新建 const 行和新建 param 行可以用
+window.util.create_constant_line = function (name, type,value, types) {
 	var cline = '<tr>';
 	cline += "<td><input type='text' value='" + name + "' /></td>";
 	cline += "<td><select>";
@@ -264,16 +273,21 @@ window.util.create_constant_line = function (name, type, types) {
 	case 'bool':
 		break;
 	default:
-		cline += "<td><input style='width:100%;' type='text' /></td>";
+		cline += "<td><input style='width:100%;' type='text' value=' " + value + "'/></td>";
 	}
 	
 	cline += "</tr>";
 	
 	return cline;
 }
-
-window.util.add_constant = function () {
-	$('#constant-add-new').before(window.util.create_constant_line('', '',possibletypes));
+// var constant = sechma({
+//     name  : String,
+//     type  : ["int","bool","var","real"],
+//     value : String
+// })
+window.util.add_constant = function (constant) {
+    var row = window.util.create_constant_line(constant["name"],constant["type"],constant["value"],possibletypes);
+	$('#constant-list tbody').append(row);
 }
 
 window.util.create_label_line = function (name, value) {
@@ -284,7 +298,7 @@ window.util.create_label_line = function (name, value) {
 }
 
 window.util.add_label = function () {
-	$('#label-add-new').before(window.util.create_label_line('', ''));
+	$("#label-list tbody").append(window.util.create_label_line('', ''));
 }
 
 // dynamic bindings

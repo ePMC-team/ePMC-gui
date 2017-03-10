@@ -168,7 +168,7 @@ window.util.refresh_property_templates = function() {
 
 
 window.util.add_parameter = function (name,type,index) {
-    var row = $(window.util.create_constant_line(name, type,ParameterTypes));
+    var row = $(window.util.create_constant_line(name, type,"",ParameterTypes));
     row.attr("id","parameter-item-" + index);
     $('#parameter-list tbody').append(row);
 }
@@ -178,21 +178,19 @@ window.util.create_formula_with_parameters = function(){
     var formula = pack_list[util.pack_idx]["formulas"][util.formula_idx];
     var exp = formula["expression"];
     formula["parameters"].forEach(function (param,index) {
+        param["value"] = $("#parameter-item-" + index + " input:last").val();
         if(param["type"] === "var") {
             var reg = new RegExp("(\\W|^)({" + param["name"] + "})(\\W|$)", "g");
             reg.multiline = true;
-            var param_value = $("#parameter-item-" + index + " input:last").val();
-            console.log(param_value)
-            exp = exp.replace(reg, "$1" + param_value + "$3");
+            exp = exp.replace(reg, "$1" + param["value"] + "$3");
         }
         else {
-            var param_tr =  $("#parameter-item-" + index);
-            $('#constant-add-new').before(param_tr);
+            util.add_constant(param);
             //TODO rename paramter with formula name as prefix
         }
     });
 
-    console.log(exp);
+    // console.log(exp);
 
     var prop = {
         formula: exp,

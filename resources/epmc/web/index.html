@@ -70,6 +70,9 @@
 				height: 440px;
 				overflow-y: scroll;
 			}
+            .panel-body .table {
+                margin-bottom : 0px
+            }
 		</style>
 	</head>
 	<body>
@@ -182,19 +185,23 @@
 						<div class="panel-heading">
 					        <h3 class="panel-title">Properties' List</h3>
 					    </div>
-						<ul class="list-group" id='properties-list'>
+						<ol class="list-group" id='properties-list'>
 							<li class="list-group-item tips">Nothing to present now, click <a onclick="util.load_prop('');">HERE</a> to open a property file.</li>
-							<li id='properties-add-new' class="list-group-item"><a onclick='util.append_prop();'>
-								<span class="glyphicon glyphicon-plus"></span>
-								<b>Add Property</b>
-							</a></li>
+
 							<!--  
 							<li id='properties-add-from-template' class="list-group-item"><a onclick='util.append_prop();'>
 								<span class="glyphicon glyphicon-plus"></span>
 								<b>Add Property From A Template</b>
 							</a></li>
 							-->
-						</ul>
+						</ol>
+                        <div class="panel-footer">
+                            <!--<li id='properties-add-new' class="list-group-item">-->
+                            <a onclick='util.append_prop();'>
+                                <span class="glyphicon glyphicon-plus"></span>
+                                <b>Add Property</b>
+                            </a>
+                        </div>
 					</div>
 					<div id='properties-constant-panel' class='panel panel-success'>
 						<div class="panel-heading">
@@ -208,18 +215,20 @@
 					        		<th>Value</th>
 					        	</thead>
 					        	<tbody>
-					        		<tr id='constant-add-new'>
-					        			<td>
-					        				<a onclick='util.add_constant();'>
-						        				<span class="glyphicon glyphicon-plus">
-						        				</span>
-					        					<b>Add Constant</b>
-					        				</a>
-					        			</td><td></td>
-					        		</tr>
+
 					        	</tbody>
 					        </table>
 					    </div>
+                        <div class="panel-footer">
+                            <!--<tr id='constant-add-new'>-->
+                                <!--<td>-->
+                            <a onclick='util.add_constant({name:"",type:"int",value:""});'>
+                                <span class="glyphicon glyphicon-plus"></span>
+                                <b>Add Constant</b>
+                            </a>
+                                <!--</td><td></td>-->
+                            <!--</tr>-->
+                        </div>
 					</div>
 					<div id='properties-label-panel' class='panel panel-warning'>
 						<div class="panel-heading">
@@ -232,18 +241,20 @@
 					        		<th>Value</th>
 					        	</thead>
 					        	<tbody>
-					        		<tr id='label-add-new'>
-					        			<td>
-					        				<a onclick='util.add_label();'>
-						        				<span class="glyphicon glyphicon-plus">
-						        				</span>
-					        					<b>Add label</b>
-					        				</a>
-					        			</td><td></td>
-					        		</tr>
+
 					        	</tbody>
 					        </table>
 					    </div>
+                        <div class="panel-footer">
+                            <!--<tr id='label-add-new'>-->
+                                <!--<td>-->
+                            <a onclick='util.add_label();'>
+                                <span class="glyphicon glyphicon-plus"></span>
+                                <b>Add label</b>
+                            </a>
+                                <!--</td><td></td>-->
+                            <!--</tr>-->
+                        </div>
 					</div>
 				</div>
 			</div>
