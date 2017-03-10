@@ -201,6 +201,13 @@ window.util.add_property = function (property) {
     $('#properties-add-new').before("<li class='list-group-item'><input style='display:none;' type='checkbox' /><a onclick='window.util.edit_prop(this)'>" + property.formula + "</a></li>");
 }
 
+//TODO 重构几个接口
+// add_property(prop) 回插property 用
+// add_constant(cons) 回插constant 用
+// new_property_row (formula,comments)
+// new_ constant_row(name,type,value) 新建 const 行和新建 param 行可以用
+// property 从无序列表改成有序列表，序号用来给parameter 重命名
+
 window.util.get_consts = function () {
 	var clines = $('#constant-list tbody tr');
 	var result = {};

@@ -188,6 +188,7 @@ window.util.create_formula_with_parameters = function(){
         else {
             var param_tr =  $("#parameter-item-" + index);
             $('#constant-add-new').before(param_tr);
+            //TODO rename paramter with formula name as prefix
         }
     });
 

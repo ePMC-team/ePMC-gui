@@ -246,4 +246,5 @@ window.util.navi_to = function(target) {
         $("#" + target).slideToggle();
         util.current_div = target;
     }
+    //TODO 点击其他功能自动 navi to main-interface
 }
